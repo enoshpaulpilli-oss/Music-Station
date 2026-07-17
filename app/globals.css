@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+
+/* Smooth scrolling */
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+/* Base */
+
+body {
+  background: black;
+  color: white;
+  overflow-x: hidden;
+}
+
+
+
+
+/* Fade Up Animation */
+
+@keyframes fadeUp {
+
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+
+.animate-fade-up {
+
+  animation: fadeUp 1s ease forwards;
+
+}
+
+
+
+
+
+/* Floating Animation */
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+}
+
+
+.animate-float {
+
+  animation: float 6s ease-in-out infinite;
+
+}
+
+
+
+
+
+/* Slow background movement */
+
+@keyframes slowPulse {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+
+}
+
+
+.animate-slow-pulse {
+
+  animation: slowPulse 8s ease-in-out infinite;
+
+}
+
+
+
+
+
+/* Premium selection */
+
+::selection {
+
+  background: rgba(168,85,247,0.5);
+
+}
+
+
+
+
+
+/* Hide scrollbar but keep scrolling */
+
+::-webkit-scrollbar {
+
+  width: 8px;
+
+}
+
+
+::-webkit-scrollbar-track {
+
+  background: black;
+
+}
+
+
+::-webkit-scrollbar-thumb {
+
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+
+}* {
+  cursor: none;
+}@keyframes noteFloat {
+
+  0% {
+
+    opacity: 0;
+
+    transform:
+      translateY(0)
+      scale(0.6)
+      rotate(0deg);
+
+  }
+
+
+  20% {
+
+    opacity: 1;
+
+  }
+
+
+  100% {
+
+    opacity: 0;
+
+    transform:
+      translateY(-100px)
+      scale(1)
+      rotate(25deg);
+
+  }
+
+}
+
+
+
+.animate-note {
+
+  animation:
+    noteFloat
+    1.5s
+    ease-out
+    forwards;
+
+}
