@@ -10,6 +10,7 @@ const studios = [
     description:
       "Learn worship guitar techniques, chords, tones and arrangements.",
     href: "/studio/guitar",
+    instrument: "guitar" as const,
   },
   {
     number: "02",
@@ -17,6 +18,7 @@ const studios = [
     description:
       "Build worship piano skills, chord progressions and atmosphere.",
     href: "/studio/piano",
+    instrument: "piano" as const,
   },
   {
     number: "03",
@@ -24,6 +26,7 @@ const studios = [
     description:
       "Develop vocal confidence, harmony and worship expression.",
     href: "/studio/vocals",
+    instrument: "vocal" as const,
   },
   {
     number: "04",
@@ -31,6 +34,7 @@ const studios = [
     description:
       "Master timing, grooves, dynamics and worship foundations.",
     href: "/studio/rhythm",
+    instrument: "rhythm" as const,
   },
 ];
 
@@ -86,10 +90,8 @@ export default function WorshipStudio() {
       id="worship-studio"
       className="relative isolate overflow-hidden px-6 py-32 md:py-40"
     >
-      {/* Deep black background */}
       <div className="pointer-events-none absolute inset-0 -z-30 bg-black" />
 
-      {/* Purple ambient glow */}
       <motion.div
         animate={{
           x: [0, 70, -30, 0],
@@ -104,7 +106,6 @@ export default function WorshipStudio() {
         className="pointer-events-none absolute left-[5%] top-[18%] -z-20 h-[500px] w-[500px] rounded-full bg-purple-600/15 blur-[160px]"
       />
 
-      {/* Blue ambient glow */}
       <motion.div
         animate={{
           x: [0, -45, 30, 0],
@@ -118,11 +119,9 @@ export default function WorshipStudio() {
         className="pointer-events-none absolute bottom-[8%] right-[4%] -z-20 h-[420px] w-[420px] rounded-full bg-blue-500/10 blur-[150px]"
       />
 
-      {/* Top separator */}
       <div className="pointer-events-none absolute left-1/2 top-0 h-px w-[85%] -translate-x-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
       <div className="mx-auto max-w-6xl">
-        {/* Section heading */}
         <motion.div
           variants={sectionVariants}
           initial="hidden"
@@ -162,7 +161,6 @@ export default function WorshipStudio() {
           </p>
         </motion.div>
 
-        {/* Studio cards */}
         <motion.div
           variants={cardContainerVariants}
           initial="hidden"
@@ -206,7 +204,6 @@ export default function WorshipStudio() {
                 hover:shadow-[0_30px_100px_rgba(126,34,206,0.18)]
               "
             >
-              {/* Hover glow */}
               <div
                 className="
                   pointer-events-none
@@ -224,7 +221,6 @@ export default function WorshipStudio() {
                 "
               />
 
-              {/* Glass light sweep */}
               <div
                 className="
                   pointer-events-none
@@ -241,37 +237,32 @@ export default function WorshipStudio() {
                 "
               />
 
-              {/* Studio number */}
               <p className="relative text-xs tracking-[0.35em] text-purple-300/45">
                 {studio.number}
               </p>
 
-              {/* Accent line */}
               <div className="relative mt-8 h-px w-12 bg-gradient-to-r from-purple-300/80 to-transparent transition-all duration-500 group-hover:w-24" />
 
-              {/* Studio title */}
               <h3 className="relative mt-8 text-2xl font-semibold tracking-tight transition-colors duration-300 group-hover:text-purple-200">
                 {studio.title}
               </h3>
 
-              {/* Studio description */}
               <p className="relative mt-5 text-sm leading-7 text-neutral-400">
                 {studio.description}
               </p>
 
-              {/* Origami transition button */}
               <div className="relative mt-10">
                 <OrigamiTransitionLink
                   href={studio.href}
                   title={studio.title}
                   number={studio.number}
+                  instrument={studio.instrument}
                 >
                   Explore
                   <span aria-hidden="true">→</span>
                 </OrigamiTransitionLink>
               </div>
 
-              {/* Bottom hover line */}
               <div
                 className="
                   pointer-events-none
