@@ -15,18 +15,74 @@ type FlyingSymbol = {
 
 export default function CursorRipple() {
   const cursorRef = useRef<HTMLDivElement>(null);
+  const symbolIndexRef = useRef(0);
 
   const mousePosition = useRef({
     x: -100,
     y: -100,
   });
 
+  const [hasFinePointer, setHasFinePointer] = useState(false);
   const [symbolIndex, setSymbolIndex] = useState(0);
   const [flyingSymbols, setFlyingSymbols] = useState<FlyingSymbol[]>([]);
 
   const currentSymbol = symbols[symbolIndex];
 
   useEffect(() => {
+    symbolIndexRef.current = symbolIndex;
+  }, [symbolIndex]);
+
+  useEffect(() => {
+    const pointerQuery = window.matchMedia("(pointer: fine)");
+
+    const updatePointerType = () => {
+      setHasFinePointer(pointerQuery.matches);
+    };
+
+    updatePointerType();
+
+    pointerQuery.addEventListener("change", updatePointerType);
+
+    return () => {
+      pointerQuery.removeEventListener("change", updatePointerType);
+    };
+  }, []);
+
+  const createFlyingSymbol = (x: number, y: number) => {
+    const currentIndex = symbolIndexRef.current;
+    const launchedSymbol = symbols[currentIndex];
+
+    const newFlyingSymbol: FlyingSymbol = {
+      id: Date.now() + Math.random(),
+      symbol: launchedSymbol,
+      x,
+      y,
+      driftX: Math.random() * 50 - 25,
+      rotation: Math.random() * 60 - 30,
+    };
+
+    setFlyingSymbols((previousSymbols) => [
+      ...previousSymbols,
+      newFlyingSymbol,
+    ]);
+
+    const nextIndex = (currentIndex + 1) % symbols.length;
+
+    symbolIndexRef.current = nextIndex;
+    setSymbolIndex(nextIndex);
+
+    window.setTimeout(() => {
+      setFlyingSymbols((previousSymbols) =>
+        previousSymbols.filter(
+          (symbol) => symbol.id !== newFlyingSymbol.id
+        )
+      );
+    }, 1200);
+  };
+
+  useEffect(() => {
+    if (!hasFinePointer) return;
+
     const handleMouseMove = (event: MouseEvent) => {
       mousePosition.current = {
         x: event.clientX,
@@ -34,7 +90,12 @@ export default function CursorRipple() {
       };
     };
 
+    const handleClick = (event: MouseEvent) => {
+      createFlyingSymbol(event.clientX, event.clientY);
+    };
+
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("click", handleClick);
 
     let animationFrame: number;
 
@@ -56,82 +117,65 @@ export default function CursorRipple() {
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("click", handleClick);
       window.cancelAnimationFrame(animationFrame);
     };
-  }, []);
+  }, [hasFinePointer]);
 
   useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
-      const launchedSymbol = symbols[symbolIndex];
+    if (hasFinePointer) return;
 
-      const newFlyingSymbol: FlyingSymbol = {
-        id: Date.now() + Math.random(),
-        symbol: launchedSymbol,
-        x: event.clientX,
-        y: event.clientY,
-        driftX: Math.random() * 60 - 30,
-        rotation: Math.random() * 70 - 35,
-      };
+    const handleTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0];
 
-      setFlyingSymbols((previousSymbols) => [
-        ...previousSymbols,
-        newFlyingSymbol,
-      ]);
+      if (!touch) return;
 
-      setSymbolIndex((previousIndex) => {
-        return (previousIndex + 1) % symbols.length;
-      });
-
-      window.setTimeout(() => {
-        setFlyingSymbols((previousSymbols) =>
-          previousSymbols.filter(
-            (symbol) => symbol.id !== newFlyingSymbol.id
-          )
-        );
-      }, 1300);
+      createFlyingSymbol(touch.clientX, touch.clientY);
     };
 
-    window.addEventListener("click", handleClick);
+    window.addEventListener("touchstart", handleTouchStart, {
+      passive: true,
+    });
 
     return () => {
-      window.removeEventListener("click", handleClick);
+      window.removeEventListener("touchstart", handleTouchStart);
     };
-  }, [symbolIndex]);
+  }, [hasFinePointer]);
 
   return (
     <>
-      {/* Musical symbol cursor */}
-
-      <div
-        ref={cursorRef}
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          fixed
-          left-0
-          top-0
-          z-[99999]
-          flex
-          h-7
-          w-7
-          items-center
-          justify-center
-          text-2xl
-          text-purple-200
-          drop-shadow-[0_0_8px_rgba(216,180,254,0.9)]
-          will-change-transform
-        "
-      >
-        <span
-          key={currentSymbol}
-          className="animate-cursor-symbol-enter"
+      {/* Desktop cursor only */}
+      {hasFinePointer && (
+        <div
+          ref={cursorRef}
+          aria-hidden="true"
+          className="
+            pointer-events-none
+            fixed
+            left-0
+            top-0
+            z-[99999]
+            flex
+            h-7
+            w-7
+            items-center
+            justify-center
+            text-2xl
+            text-purple-200
+            drop-shadow-[0_0_8px_rgba(216,180,254,0.9)]
+            will-change-transform
+          "
         >
-          {currentSymbol}
-        </span>
-      </div>
+          <span
+            key={currentSymbol}
+            className="animate-cursor-symbol-enter"
+          >
+            {currentSymbol}
+          </span>
+        </div>
+      )}
 
-      {/* Symbols launched by clicks */}
-
+      {/* Desktop clicks and mobile taps */}
       {flyingSymbols.map((item) => (
         <span
           key={item.id}
@@ -140,9 +184,9 @@ export default function CursorRipple() {
             pointer-events-none
             fixed
             z-[99998]
-            text-2xl
+            text-xl
             text-purple-200
-            drop-shadow-[0_0_10px_rgba(216,180,254,0.85)]
+            drop-shadow-[0_0_10px_rgba(216,180,254,0.8)]
             animate-musical-cursor-launch
           "
           style={
