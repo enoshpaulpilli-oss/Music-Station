@@ -2,243 +2,161 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const symbols = ["𝄞", "♪", "♫", "♩", "♬", "𝄢"];
 
-const symbols = [
-  "♪",
-  "♫",
-  "♩",
-  "♬",
-  "✦",
-];
-
-
-type Note = {
-  id:number;
-  x:number;
-  y:number;
-  symbol:string;
+type FlyingSymbol = {
+  id: number;
+  symbol: string;
+  x: number;
+  y: number;
+  driftX: number;
+  rotation: number;
 };
 
-
-
 export default function CursorRipple() {
-
-
   const cursorRef = useRef<HTMLDivElement>(null);
 
-
-  const mouse = useRef({
-    x:0,
-    y:0
+  const mousePosition = useRef({
+    x: -100,
+    y: -100,
   });
 
+  const [symbolIndex, setSymbolIndex] = useState(0);
+  const [flyingSymbols, setFlyingSymbols] = useState<FlyingSymbol[]>([]);
 
+  const currentSymbol = symbols[symbolIndex];
 
-  const [notes,setNotes] = useState<Note[]>([]);
-
-
-
-  useEffect(()=>{
-
-
-    const move = (e:MouseEvent)=>{
-
-      mouse.current.x = e.clientX;
-      mouse.current.y = e.clientY;
-
+  useEffect(() => {
+    const handleMouseMove = (event: MouseEvent) => {
+      mousePosition.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
     };
 
+    window.addEventListener("mousemove", handleMouseMove);
 
+    let animationFrame: number;
 
-    window.addEventListener(
-      "mousemove",
-      move
-    );
-
-
-
-    let animation:number;
-
-
-    const animate = ()=>{
-
-
-      if(cursorRef.current){
-
-        cursorRef.current.style.transform =
-        `
-        translate(
-        ${mouse.current.x - 8}px,
-        ${mouse.current.y - 8}px
-        )
+    const animateCursor = () => {
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `
+          translate3d(
+            ${mousePosition.current.x - 12}px,
+            ${mousePosition.current.y - 14}px,
+            0
+          )
         `;
-
       }
 
-
-      animation =
-      requestAnimationFrame(animate);
-
+      animationFrame = window.requestAnimationFrame(animateCursor);
     };
 
+    animateCursor();
 
-    animate();
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, []);
 
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      const launchedSymbol = symbols[symbolIndex];
 
-
-    const click = (e:MouseEvent)=>{
-
-
-      const note = {
-
-        id:Date.now(),
-
-        x:e.clientX,
-
-        y:e.clientY,
-
-        symbol:
-        symbols[
-          Math.floor(
-            Math.random()*symbols.length
-          )
-        ]
-
+      const newFlyingSymbol: FlyingSymbol = {
+        id: Date.now() + Math.random(),
+        symbol: launchedSymbol,
+        x: event.clientX,
+        y: event.clientY,
+        driftX: Math.random() * 60 - 30,
+        rotation: Math.random() * 70 - 35,
       };
 
-
-      setNotes(prev=>[
-        ...prev,
-        note
+      setFlyingSymbols((previousSymbols) => [
+        ...previousSymbols,
+        newFlyingSymbol,
       ]);
 
+      setSymbolIndex((previousIndex) => {
+        return (previousIndex + 1) % symbols.length;
+      });
 
-
-      setTimeout(()=>{
-
-        setNotes(prev=>
-          prev.filter(
-            n=>n.id!==note.id
+      window.setTimeout(() => {
+        setFlyingSymbols((previousSymbols) =>
+          previousSymbols.filter(
+            (symbol) => symbol.id !== newFlyingSymbol.id
           )
         );
-
-      },1200);
-
-
+      }, 1300);
     };
 
+    window.addEventListener("click", handleClick);
 
-
-    window.addEventListener(
-      "click",
-      click
-    );
-
-
-
-    return()=>{
-
-      cancelAnimationFrame(animation);
-
-      window.removeEventListener(
-        "mousemove",
-        move
-      );
-
-      window.removeEventListener(
-        "click",
-        click
-      );
-
+    return () => {
+      window.removeEventListener("click", handleClick);
     };
-
-
-  },[]);
-
-
-
+  }, [symbolIndex]);
 
   return (
-
     <>
-
-
-      {/* Smooth cursor */}
+      {/* Musical symbol cursor */}
 
       <div
-  ref={cursorRef}
+        ref={cursorRef}
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          fixed
+          left-0
+          top-0
+          z-[99999]
+          flex
+          h-7
+          w-7
+          items-center
+          justify-center
+          text-2xl
+          text-purple-200
+          drop-shadow-[0_0_8px_rgba(216,180,254,0.9)]
+          will-change-transform
+        "
+      >
+        <span
+          key={currentSymbol}
+          className="animate-cursor-symbol-enter"
+        >
+          {currentSymbol}
+        </span>
+      </div>
 
-  className="
-  pointer-events-none
-  fixed
-  z-[99999]
+      {/* Symbols launched by clicks */}
 
-  h-3
-  w-3
-
-  rounded-full
-
-  bg-purple-200
-
-  shadow-[0_0_12px_rgba(168,85,247,0.8)]
-
-  after:absolute
-  after:-inset-3
-
-  after:rounded-full
-
-  after:bg-purple-400/20
-
-  after:blur-md
-
-  after:content-['']
-  "
-
-/>
-
-
-
-      {/* Musical particles */}
-
-      {
-        notes.map(note=>(
-
-          <span
-
-            key={note.id}
-
-            className="
+      {flyingSymbols.map((item) => (
+        <span
+          key={item.id}
+          aria-hidden="true"
+          className="
             pointer-events-none
-
             fixed
-
-            z-[9998]
-
-            text-3xl
-
-            text-purple-300
-
-            animate-note
-            "
-
-            style={{
-
-              left:note.x,
-
-              top:note.y
-
-            }}
-
-          >
-
-            {note.symbol}
-
-          </span>
-
-        ))
-      }
-
-
+            z-[99998]
+            text-2xl
+            text-purple-200
+            drop-shadow-[0_0_10px_rgba(216,180,254,0.85)]
+            animate-musical-cursor-launch
+          "
+          style={
+            {
+              left: item.x,
+              top: item.y,
+              "--symbol-drift-x": `${item.driftX}px`,
+              "--symbol-rotation": `${item.rotation}deg`,
+            } as React.CSSProperties
+          }
+        >
+          {item.symbol}
+        </span>
+      ))}
     </>
   );
 }

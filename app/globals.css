@@ -174,12 +174,88 @@ body {
 
 
 
-.animate-note {
+/* Hide the normal computer cursor on desktop */
 
-  animation:
-    noteFloat
-    1.5s
-    ease-out
+@media (pointer: fine) {
+  html,
+  body,
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  [role="button"] {
+    cursor: none !important;
+  }
+}
+
+
+/* New symbol appearing as the cursor */
+
+@keyframes cursorSymbolEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.35) rotate(-20deg);
+    filter: blur(5px);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.18) rotate(5deg);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    filter: blur(0);
+  }
+}
+
+.animate-cursor-symbol-enter {
+  display: inline-block;
+  animation: cursorSymbolEnter 400ms cubic-bezier(0.22, 1, 0.36, 1)
     forwards;
+}
 
+
+/* Current cursor symbol flying away after clicking */
+
+@keyframes musicalCursorLaunch {
+  0% {
+    opacity: 1;
+    transform:
+      translate(-50%, -50%)
+      translateX(0)
+      translateY(0)
+      scale(1)
+      rotate(0deg);
+    filter: blur(0);
+  }
+
+  25% {
+    opacity: 1;
+    transform:
+      translate(-50%, -50%)
+      translateX(calc(var(--symbol-drift-x) * 0.25))
+      translateY(-22px)
+      scale(1.18)
+      rotate(calc(var(--symbol-rotation) * 0.25));
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      translateX(var(--symbol-drift-x))
+      translateY(-115px)
+      scale(0.75)
+      rotate(var(--symbol-rotation));
+    filter: blur(3px);
+  }
+}
+
+.animate-musical-cursor-launch {
+  animation: musicalCursorLaunch 1.3s cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
 }

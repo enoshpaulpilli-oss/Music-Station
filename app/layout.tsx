@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import IntroScreen from "./components/IntroScreen";
+import CursorRipple from "./components/CursorRipple";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Music Station",
-  description: "Where Worship Meets Excellence",
+  description:
+    "A worship-centred platform where musicians learn, practise, create, collaborate and serve together.",
 };
 
 export default function RootLayout({
@@ -30,8 +31,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-black">
-        <IntroScreen />
+        {/* Global musical cursor */}
+        <CursorRipple />
 
+        {/* All website pages */}
         {children}
       </body>
     </html>
