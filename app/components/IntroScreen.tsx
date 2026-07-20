@@ -81,6 +81,7 @@ export default function IntroScreen() {
           `}
         >
           <motion.div
+          
             initial={{ opacity: 0 }}
             animate={{
               opacity: entering ? 0.4 : 1,

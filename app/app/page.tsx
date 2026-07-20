@@ -98,11 +98,11 @@ const particles = [
 
 function MusicLogo() {
   return (
-    <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.055] shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+    <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl">
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
-        className="absolute h-6 w-6 rounded-full border border-purple-300/30 border-r-blue-300/80"
+        className="absolute h-6 w-6 rounded-full border border-[var(--accent-ring)] border-r-blue-300/80"
       />
 
       <div className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.9)]" />
@@ -177,7 +177,7 @@ function ChordAnimation() {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute flex h-12 w-12 items-center justify-center rounded-2xl border border-purple-300/20 bg-purple-400/10 text-sm font-semibold text-purple-100 backdrop-blur-xl"
+          className="absolute flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--accent-ring)] bg-[var(--accent-soft)] text-sm font-semibold text-[var(--accent)] backdrop-blur-xl"
           style={{ left: `${18 + index * 31}%` }}
         >
           {note}
@@ -190,7 +190,7 @@ function ChordAnimation() {
 function InstrumentAnimation() {
   return (
     <div className="relative flex h-36 items-center justify-center">
-      <div className="relative flex h-[82px] w-[82%] items-end overflow-hidden rounded-2xl border border-white/10 bg-black/30 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      <div className="relative flex h-[82px] w-[82%] items-end overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background)]/30 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
         {[0, 1, 2, 3, 4, 5, 6, 7].map((key) => (
           <motion.div
             key={key}
@@ -242,7 +242,7 @@ function HarmonyAnimation() {
         <motion.path
           d="M35 81 L114 37 L192 91 L261 44"
           fill="none"
-          stroke="rgba(192,132,252,0.58)"
+          stroke="var(--accent)"
           strokeWidth="2"
           strokeDasharray="6 7"
           animate={{ strokeDashoffset: [0, -26], opacity: [0.3, 1, 0.3] }}
@@ -309,7 +309,7 @@ function PracticeAnimation() {
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-        className="absolute h-24 w-24 rounded-full border border-dashed border-purple-300/15"
+        className="absolute h-24 w-24 rounded-full border border-dashed border-[var(--accent-ring)]"
       />
 
       <div className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-white/[0.03]">
@@ -332,7 +332,7 @@ function PracticeAnimation() {
             cy="50"
             r="43"
             fill="none"
-            stroke="rgba(192,132,252,0.92)"
+            stroke="var(--accent)"
             strokeWidth="7"
             strokeLinecap="round"
             strokeDasharray="270"
@@ -344,7 +344,7 @@ function PracticeAnimation() {
         <motion.span
           animate={{ opacity: [0.5, 1, 0.5], scale: [0.97, 1.05, 0.97] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-          className="text-xs font-semibold text-purple-100"
+          className="text-xs font-semibold text-[var(--accent)]"
         >
           72%
         </motion.span>
@@ -383,7 +383,7 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
   const glowBackground = useTransform(
     [glowX, glowY],
     ([x, y]) =>
-      `radial-gradient(420px circle at ${x}% ${y}%, rgba(168,85,247,0.16), transparent 48%)`,
+      `radial-gradient(420px circle at ${x}% ${y}%, var(--accent-soft), transparent 48%)`,
   );
 
   const handleMouseMove = (event: ReactMouseEvent<HTMLDivElement>) => {
@@ -436,7 +436,7 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
         rotateY: smoothRotateY,
         transformPerspective: 1000,
       }}
-      className={`group relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.045] backdrop-blur-2xl transition-[border-color,background-color,box-shadow] duration-500 hover:border-purple-300/30 hover:bg-white/[0.07] hover:shadow-[0_35px_120px_rgba(126,34,206,0.18)] ${
+      className={`group relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] backdrop-blur-2xl transition-[border-color,background-color,box-shadow] duration-500 hover:border-[var(--accent-ring)] hover:bg-[var(--surface-hover)] hover:shadow-[0_35px_120px_rgba(126,34,206,0.18)] ${
         index < 3 ? "lg:col-span-2" : "lg:col-span-3"
       }`}
     >
@@ -447,21 +447,21 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
 
       <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.045] to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
 
-      <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-purple-500/0 blur-[80px] transition-colors duration-700 group-hover:bg-purple-500/20" />
+      <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-purple-500/0 blur-[80px] transition-colors duration-700 group-hover:bg-[var(--accent-soft)]" />
 
       <Link
         href={tool.href}
-        className="relative block min-h-[400px] p-7 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-300 sm:p-8"
+        className="relative block min-h-[400px] p-7 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] sm:p-8"
       >
         <div className="flex items-center justify-between">
-          <span className="text-[10px] tracking-[0.35em] text-purple-300/50">
+          <span className="text-[10px] tracking-[0.35em] text-[var(--accent)]">
             {tool.number}
           </span>
 
           <motion.span
             initial={{ x: -4, y: 4 }}
             whileHover={{ x: 2, y: -2 }}
-            className="text-neutral-500 transition-colors group-hover:text-purple-200"
+            className="text-[var(--text-subtle)] transition-colors group-hover:text-[var(--accent)]"
           >
             <ArrowIcon />
           </motion.span>
@@ -472,15 +472,15 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
         </div>
 
         <div className="mt-4">
-          <h2 className="text-2xl font-semibold tracking-[-0.035em] text-white transition-colors group-hover:text-purple-50">
+          <h2 className="text-2xl font-semibold tracking-[-0.035em] text-[var(--text-default)] transition-colors group-hover:text-purple-50">
             {tool.title}
           </h2>
 
-          <p className="mt-4 max-w-md text-sm leading-7 text-neutral-400">
+          <p className="mt-4 max-w-md text-sm leading-7 text-[var(--text-muted)]">
             {tool.description}
           </p>
 
-          <div className="mt-7 flex items-center gap-2 text-xs font-medium text-neutral-500 transition-colors group-hover:text-purple-200">
+          <div className="mt-7 flex items-center gap-2 text-xs font-medium text-[var(--text-subtle)] transition-colors group-hover:text-[var(--accent)]">
             <span>{tool.status}</span>
             <motion.span
               animate={{ x: [0, 4, 0] }}
@@ -590,6 +590,8 @@ export default function DashboardPage() {
     };
   }, [mouseX, mouseY]);
 
+  
+
   const handleLogout = async () => {
     setLoggingOut(true);
 
@@ -601,8 +603,7 @@ export default function DashboardPage() {
       return;
     }
 
-    router.replace("/login");
-    router.refresh();
+    window.location.href = "/login";
   };
 
   const displayName = useMemo(() => {
@@ -625,14 +626,14 @@ export default function DashboardPage() {
 
   if (checkingSession) {
     return (
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black text-white">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--background)] text-[var(--text-default)]">
         <motion.div
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.35, 0.7, 0.35],
           }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute h-[420px] w-[420px] rounded-full bg-purple-600/20 blur-[150px]"
+          className="absolute h-[420px] w-[420px] rounded-full bg-[var(--accent-soft)] blur-[150px]"
         />
 
         <div className="relative text-center">
@@ -641,7 +642,7 @@ export default function DashboardPage() {
           <motion.p
             animate={{ opacity: [0.35, 1, 0.35] }}
             transition={{ duration: 1.8, repeat: Infinity }}
-            className="mt-5 text-sm text-neutral-400"
+            className="mt-5 text-sm text-[var(--text-muted)]"
           >
             Preparing your space
           </motion.p>
@@ -653,9 +654,9 @@ export default function DashboardPage() {
   return (
     <main
       ref={pageRef}
-      className="relative isolate min-h-screen overflow-hidden bg-black text-white"
+      className="relative isolate min-h-screen overflow-hidden bg-[var(--background)] text-[var(--text-default)]"
     >
-      <div className="pointer-events-none fixed inset-0 -z-50 bg-black" />
+      <div className="pointer-events-none fixed inset-0 -z-50 bg-[var(--background)]" />
 
       <div className="pointer-events-none fixed inset-0 -z-30 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:54px_54px] [mask-image:radial-gradient(circle_at_center,black,transparent_82%)]" />
 
@@ -663,7 +664,7 @@ export default function DashboardPage() {
         style={{ x: smoothX, y: smoothY }}
         animate={{ scale: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
         transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-none fixed left-[35%] top-[20%] -z-40 h-[650px] w-[650px] -translate-x-1/2 rounded-full bg-purple-600/18 blur-[180px]"
+        className="pointer-events-none fixed left-[35%] top-[20%] -z-40 h-[650px] w-[650px] -translate-x-1/2 rounded-full bg-[var(--accent-soft)] blur-[180px]"
       />
 
       <motion.div
@@ -712,7 +713,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <header className="sticky top-0 z-50 border-b border-white/[0.07] bg-black/35 backdrop-blur-3xl">
+      <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/35 backdrop-blur-3xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:px-10">
           <Link href="/app" className="group flex items-center gap-3">
             <MusicLogo />
@@ -721,30 +722,30 @@ export default function DashboardPage() {
               <p className="text-sm font-semibold tracking-[-0.02em]">
                 Music Space
               </p>
-              <p className="text-[9px] tracking-[0.18em] text-neutral-600">
+              <p className="text-[9px] tracking-[0.18em] text-[var(--text-subtle)]">
                 PERSONAL STUDIO
               </p>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-1 rounded-full border border-white/[0.07] bg-white/[0.035] p-1 backdrop-blur-xl md:flex">
+          <nav className="hidden items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--surface)] p-1 backdrop-blur-xl md:flex">
   <Link
     href="/app"
-    className="rounded-full bg-white/[0.08] px-5 py-2 text-xs font-medium text-white"
+    className="rounded-full bg-[var(--surface-strong)] px-5 py-2 text-xs font-medium text-[var(--text-default)]"
   >
     Home
   </Link>
 
   <Link
     href="/app/bandspace"
-    className="rounded-full px-5 py-2 text-xs font-medium text-neutral-500 transition hover:bg-white/[0.055] hover:text-white"
+    className="rounded-full px-5 py-2 text-xs font-medium text-[var(--text-subtle)] transition hover:bg-[var(--surface)] hover:text-[var(--text-default)]"
   >
     BandSpace
   </Link>
 
   <Link
     href="/app/settings"
-    className="rounded-full px-5 py-2 text-xs font-medium text-neutral-500 transition hover:bg-white/[0.055] hover:text-white"
+    className="rounded-full px-5 py-2 text-xs font-medium text-[var(--text-subtle)] transition hover:bg-[var(--surface)] hover:text-[var(--text-default)]"
   >
     Settings
   </Link>
@@ -755,7 +756,7 @@ export default function DashboardPage() {
     type="button"
     onClick={() => setNotificationsOpen((current) => !current)}
     aria-label="Open notifications"
-    className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.035] text-white/45 transition hover:border-white/[0.12] hover:bg-white/[0.07] hover:text-white"
+    className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text-default)]/45 transition hover:border-white/[0.12] hover:bg-[var(--surface-hover)] hover:text-[var(--text-default)]"
   >
     <svg
       viewBox="0 0 24 24"
@@ -778,7 +779,7 @@ export default function DashboardPage() {
       />
     </svg>
     {unreadNotifications > 0 && (
-      <span className="absolute right-2 top-2 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-violet-400 shadow-[0_0_10px_rgba(167,139,250,0.9)]" />
+      <span className="absolute right-2 top-2 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-[var(--accent)] shadow-[0_0_10px_rgba(167,139,250,0.9)]" />
     )}
   </button>
 
@@ -792,10 +793,10 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={() => setProfileOpen((current) => !current)}
-              className="group flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.04] py-1.5 pl-2 pr-3 backdrop-blur-xl transition hover:border-purple-300/25 hover:bg-white/[0.065]"
+              className="group flex items-center gap-3 rounded-full border border-[var(--border)] bg-[var(--surface)] py-1.5 pl-2 pr-3 backdrop-blur-xl transition hover:border-[var(--accent-ring)] hover:bg-[var(--surface-hover)]"
               aria-expanded={profileOpen}
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full border border-purple-300/20 bg-gradient-to-br from-purple-500/30 to-blue-500/20 text-[10px] font-semibold text-purple-100">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--accent-ring)] bg-gradient-to-br from-purple-500/30 to-blue-500/20 text-[10px] font-semibold text-[var(--accent)]">
                 {initials}
               </div>
 
@@ -803,7 +804,7 @@ export default function DashboardPage() {
                 <p className="max-w-[130px] truncate text-xs font-medium">
                   {displayName}
                 </p>
-                <p className="max-w-[130px] truncate text-[10px] text-neutral-600">
+                <p className="max-w-[130px] truncate text-[10px] text-[var(--text-subtle)]">
                   {user?.email}
                 </p>
               </div>
@@ -812,7 +813,7 @@ export default function DashboardPage() {
                 animate={{ rotate: profileOpen ? 180 : 0 }}
                 viewBox="0 0 20 20"
                 fill="none"
-                className="h-3.5 w-3.5 text-neutral-500"
+                className="h-3.5 w-3.5 text-[var(--text-subtle)]"
               >
                 <path
                   d="m6 8 4 4 4-4"
@@ -857,20 +858,20 @@ export default function DashboardPage() {
                       duration: 0.24,
                       ease: [0.22, 1, 0.36, 1],
                     }}
-                    className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-64 overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/85 p-2 shadow-[0_30px_100px_rgba(0,0,0,0.7)] backdrop-blur-3xl"
+                    className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-64 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background-elevated)] p-2 shadow-[0_30px_100px_rgba(0,0,0,0.7)] backdrop-blur-3xl"
                   >
-                    <div className="border-b border-white/[0.07] p-3">
+                    <div className="border-b border-[var(--border)] p-3">
                       <p className="truncate text-sm font-medium">
                         {displayName}
                       </p>
-                      <p className="mt-1 truncate text-xs text-neutral-500">
+                      <p className="mt-1 truncate text-xs text-[var(--text-subtle)]">
                         {user?.email}
                       </p>
                     </div>
 
                     <Link
                       href="/app/settings"
-                      className="mt-2 block rounded-xl px-3 py-3 text-sm text-white/55 transition hover:bg-white/[0.06] hover:text-white"
+                      className="mt-2 block rounded-xl px-3 py-3 text-sm text-[var(--text-default)]/55 transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-default)]"
                     >
                       Settings
                     </Link>
@@ -879,7 +880,7 @@ export default function DashboardPage() {
                       type="button"
                       onClick={handleLogout}
                       disabled={loggingOut}
-                      className="mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm text-neutral-400 transition hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                      className="mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-default)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <LogoutIcon />
                       {loggingOut ? "Logging out..." : "Log out"}
@@ -897,7 +898,7 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 35, filter: "blur(12px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          className="relative overflow-hidden rounded-[2.4rem] border border-white/[0.08] bg-white/[0.035] px-7 py-12 shadow-[0_35px_130px_rgba(0,0,0,0.38)] backdrop-blur-3xl sm:px-10 sm:py-16 lg:px-14"
+          className="relative overflow-hidden rounded-[2.4rem] border border-[var(--border)] bg-[var(--surface)] px-7 py-12 shadow-[0_35px_130px_rgba(0,0,0,0.38)] backdrop-blur-3xl sm:px-10 sm:py-16 lg:px-14"
         >
           <motion.div
             animate={{
@@ -906,7 +907,7 @@ export default function DashboardPage() {
               scale: [1, 1.1, 0.96, 1],
             }}
             transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
-            className="pointer-events-none absolute -right-28 -top-32 h-80 w-80 rounded-full bg-purple-500/20 blur-[100px]"
+            className="pointer-events-none absolute -right-28 -top-32 h-80 w-80 rounded-full bg-[var(--accent-soft)] blur-[100px]"
           />
 
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(110deg,transparent_25%,rgba(255,255,255,0.035)_50%,transparent_75%)] bg-[length:250%_100%] animate-[shimmer_9s_linear_infinite]" />
@@ -916,7 +917,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, letterSpacing: "0.1em" }}
               animate={{ opacity: 1, letterSpacing: "0.32em" }}
               transition={{ duration: 1, delay: 0.1 }}
-              className="text-[10px] uppercase text-purple-300/65 sm:text-xs"
+              className="text-[10px] uppercase text-[var(--accent)] sm:text-xs"
             >
               your music space
             </motion.p>
@@ -934,7 +935,7 @@ export default function DashboardPage() {
               </motion.span>
             </h1>
 
-            <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-400 sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base leading-8 text-[var(--text-muted)] sm:text-lg">
               Everything you need to explore chords, develop your ears,
               practise consistently and turn small musical ideas into something
               real.
@@ -944,7 +945,7 @@ export default function DashboardPage() {
               href="/app/bandspace"
               whileHover={{ y: -3, scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
-              className="group relative mt-9 inline-flex items-center gap-3 overflow-hidden rounded-full bg-purple-600 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_50px_rgba(126,34,206,0.28)] transition hover:bg-purple-500 hover:shadow-[0_18px_65px_rgba(168,85,247,0.4)]"
+              className="group relative mt-9 inline-flex items-center gap-3 overflow-hidden rounded-full bg-[var(--accent)] px-6 py-3.5 text-sm font-semibold text-[var(--text-default)] shadow-[0_16px_50px_rgba(126,34,206,0.28)] transition hover:bg-[var(--accent-hover)] hover:shadow-[0_18px_65px_rgba(168,85,247,0.4)]"
             >
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
               <span className="relative">Explore BandSpace</span>
@@ -975,7 +976,7 @@ export default function DashboardPage() {
             className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"
           >
             <div>
-              <p className="text-[10px] uppercase tracking-[0.34em] text-purple-300/60 sm:text-xs">
+              <p className="text-[10px] uppercase tracking-[0.34em] text-[var(--accent)] sm:text-xs">
                 built for making progress
               </p>
 
@@ -984,7 +985,7 @@ export default function DashboardPage() {
               </h2>
             </div>
 
-            <p className="max-w-sm text-sm leading-7 text-neutral-500">
+            <p className="max-w-sm text-sm leading-7 text-[var(--text-subtle)]">
               Each space is designed to stay focused, useful and easy to return
               to.
             </p>
