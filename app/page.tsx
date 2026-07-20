@@ -1,8 +1,10 @@
 "use client";
 
+import Footer from "./components/Footer";
 import IntroScreen from "./components/IntroScreen";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
+import HowItWorks from "./components/HowItWorks";
 import WorshipStudio from "./components/WorshipStudio";
 import BandWorkspace from "./components/BandWorkspace";
 
@@ -12,11 +14,23 @@ export default function Home() {
       {/* Homepage-only cinematic intro */}
       <IntroScreen />
 
-      {/* Homepage sections */}
+      {/* Navigation */}
       <Navbar />
+
+      {/* Hero */}
       <Hero />
+
+      {/* Product Overview */}
+      <HowItWorks />
+
+      {/* Features */}
       <WorshipStudio />
+
+      {/* Band Workspace */}
       <BandWorkspace />
+
+      {/* Footer */}
+      <Footer />
     </main>
   );
 }

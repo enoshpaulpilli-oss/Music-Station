@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
@@ -87,10 +88,29 @@ export default function Hero() {
     };
   }, [mouseX, mouseY]);
 
+  const scrollToFeatures = () => {
+    document
+      .getElementById("features")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <section
       ref={sectionRef}
-      className="relative isolate flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center"
+      className="
+        relative
+        isolate
+        flex
+        min-h-screen
+        flex-col
+        items-center
+        justify-center
+        overflow-hidden
+        px-6
+        pb-24
+        pt-28
+        text-center
+      "
     >
       {/* Deep background */}
       <div className="pointer-events-none absolute inset-0 -z-40 bg-black" />
@@ -148,13 +168,18 @@ export default function Hero() {
           left-1/2
           top-1/2
           -z-20
-          h-[720px]
-          w-[720px]
+          h-[520px]
+          w-[520px]
           -translate-x-1/2
           -translate-y-1/2
           rounded-full
           bg-purple-600/20
-          blur-[180px]
+          blur-[150px]
+          sm:h-[650px]
+          sm:w-[650px]
+          md:h-[720px]
+          md:w-[720px]
+          md:blur-[180px]
         "
       />
 
@@ -194,14 +219,18 @@ export default function Hero() {
         className="
           pointer-events-none
           absolute
-          right-[10%]
+          right-[2%]
           top-[18%]
           -z-20
-          h-[380px]
-          w-[380px]
+          h-[280px]
+          w-[280px]
           rounded-full
           bg-blue-500/15
-          blur-[140px]
+          blur-[120px]
+          md:right-[10%]
+          md:h-[380px]
+          md:w-[380px]
+          md:blur-[140px]
         "
       />
 
@@ -232,10 +261,11 @@ export default function Hero() {
           bottom-[12%]
           -z-10
           h-32
-          w-[70%]
+          w-[80%]
           rounded-full
           bg-purple-500/20
           blur-[70px]
+          md:w-[70%]
         "
       />
 
@@ -281,6 +311,50 @@ export default function Hero() {
           />
         ))}
       </div>
+
+      {/* Small casual badge */}
+      <motion.div
+        initial={{
+          opacity: 0,
+          y: 15,
+          filter: "blur(8px)",
+        }}
+        animate={
+          introComplete
+            ? {
+                opacity: 1,
+                y: 0,
+                filter: "blur(0px)",
+              }
+            : {
+                opacity: 0,
+                y: 15,
+                filter: "blur(8px)",
+              }
+        }
+        transition={{
+          duration: 0.8,
+          delay: 0.05,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+        className="
+          relative
+          z-20
+          mb-6
+          rounded-full
+          border
+          border-white/10
+          bg-white/[0.045]
+          px-4
+          py-2
+          text-xs
+          text-neutral-400
+          shadow-[0_12px_50px_rgba(0,0,0,0.3)]
+          backdrop-blur-xl
+        "
+      >
+        made for musicians who just wanna make stuff
+      </motion.div>
 
       {/* Main title */}
       <motion.div
@@ -336,28 +410,40 @@ export default function Hero() {
             to-blue-400
             bg-[length:200%_200%]
             bg-clip-text
-            text-6xl
+            text-5xl
             font-extrabold
-            tracking-tight
+            tracking-[-0.05em]
             text-transparent
+            sm:text-6xl
             md:text-8xl
           "
         >
-          Music Station
+          Music Space
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0 }}
+          initial={{
+            opacity: 0,
+            x: -8,
+          }}
           animate={{
             opacity: introComplete ? 1 : 0,
+            x: introComplete ? 0 : -8,
           }}
           transition={{
             delay: 0.65,
             duration: 0.8,
           }}
-          className="mt-3 text-xs uppercase tracking-[0.45em] text-neutral-500"
+          className="
+            mt-3
+            text-[11px]
+            font-medium
+            tracking-[0.2em]
+            text-neutral-500
+            sm:text-xs
+          "
         >
-          — Enosh Paul
+          by Enosh Paul
         </motion.p>
       </motion.div>
 
@@ -389,16 +475,18 @@ export default function Hero() {
         className="
           relative
           z-20
-          mt-10
+          mt-9
           max-w-2xl
-          text-lg
+          text-base
           leading-8
           text-neutral-400
+          sm:text-lg
           md:text-xl
         "
       >
-        A worship-centred platform where musicians learn, practise, create,
-        collaborate and serve together.
+        All the little music tools I kept wishing were in one place.
+        Chords, practice stuff, ear training and a space to mess around
+        with ideas.
       </motion.p>
 
       {/* Buttons */}
@@ -423,29 +511,72 @@ export default function Hero() {
           delay: 0.75,
           ease: [0.22, 1, 0.36, 1],
         }}
-        className="relative z-20 mt-12 flex flex-col gap-4 sm:flex-row"
+        className="
+          relative
+          z-20
+          mt-11
+          flex
+          w-full
+          max-w-md
+          flex-col
+          gap-4
+          sm:w-auto
+          sm:max-w-none
+          sm:flex-row
+        "
       >
-        <button
+        <Link
+          href="/login"
           className="
+            group
+            relative
+            inline-flex
+            items-center
+            justify-center
+            overflow-hidden
             rounded-full
             bg-purple-600
             px-8
             py-4
             font-semibold
+            text-white
             transition-all
             duration-300
-            hover:-translate-y-2
-            hover:scale-105
+            hover:-translate-y-1.5
+            hover:scale-[1.03]
             hover:bg-purple-500
             hover:shadow-[0_0_60px_rgba(168,85,247,0.5)]
+            active:translate-y-0
             active:scale-95
           "
         >
-          Enter Worship Studio
-        </button>
+          <span
+            className="
+              absolute
+              inset-0
+              -translate-x-full
+              bg-gradient-to-r
+              from-transparent
+              via-white/20
+              to-transparent
+              transition-transform
+              duration-700
+              group-hover:translate-x-full
+            "
+          />
+
+          <span className="relative">Join Music Space</span>
+        </Link>
 
         <button
+          type="button"
+          onClick={scrollToFeatures}
           className="
+            group
+            inline-flex
+            items-center
+            justify-center
+            gap-2
             rounded-full
             border
             border-white/10
@@ -453,24 +584,50 @@ export default function Hero() {
             px-8
             py-4
             font-semibold
+            text-neutral-200
             backdrop-blur-xl
             transition-all
             duration-300
-            hover:-translate-y-2
-            hover:scale-105
-            hover:border-white/30
+            hover:-translate-y-1.5
+            hover:scale-[1.03]
+            hover:border-white/25
             hover:bg-white/10
-            hover:shadow-[0_20px_50px_rgba(255,255,255,0.15)]
+            hover:text-white
+            hover:shadow-[0_20px_50px_rgba(255,255,255,0.1)]
+            active:translate-y-0
             active:scale-95
           "
         >
-          Explore Features
+          <span>Take a look</span>
+
+          <motion.span
+            animate={{
+              y: [0, 4, 0],
+            }}
+            transition={{
+              duration: 1.6,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="
+              text-purple-300
+              transition-transform
+              duration-300
+              group-hover:translate-y-1
+            "
+          >
+            ↓
+          </motion.span>
         </button>
       </motion.div>
 
-      {/* Bottom scroll hint */}
-      <motion.div
-        initial={{ opacity: 0 }}
+      {/* Tiny bottom hint */}
+      <motion.button
+        type="button"
+        onClick={scrollToFeatures}
+        initial={{
+          opacity: 0,
+        }}
         animate={{
           opacity: introComplete ? 1 : 0,
         }}
@@ -478,9 +635,20 @@ export default function Hero() {
           delay: 1.4,
           duration: 1,
         }}
-        className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2"
+        className="
+          absolute
+          bottom-7
+          left-1/2
+          z-20
+          hidden
+          -translate-x-1/2
+          flex-col
+          items-center
+          md:flex
+        "
+        aria-label="Scroll to features"
       >
-        <motion.p
+        <motion.span
           animate={{
             opacity: [0.3, 0.8, 0.3],
           }}
@@ -489,12 +657,17 @@ export default function Hero() {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="text-[10px] uppercase tracking-[0.45em] text-neutral-600"
+          className="
+            text-[9px]
+            uppercase
+            tracking-[0.4em]
+            text-neutral-600
+          "
         >
-          Scroll to Explore
-        </motion.p>
+          have a look around
+        </motion.span>
 
-        <motion.div
+        <motion.span
           animate={{
             y: [0, 7, 0],
             opacity: [0.3, 0.8, 0.3],
@@ -505,7 +678,6 @@ export default function Hero() {
             ease: "easeInOut",
           }}
           className="
-            mx-auto
             mt-3
             h-8
             w-px
@@ -514,7 +686,7 @@ export default function Hero() {
             to-transparent
           "
         />
-      </motion.div>
+      </motion.button>
     </section>
   );
 }
