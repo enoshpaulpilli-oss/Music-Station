@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: dark;
+  color: var(--text-default, #ffffff);
+  background: black;
+  --accent: #8b5cf6;
+  --accent-soft: rgba(139,92,246,0.15);
+  --surface: rgba(255,255,255,0.05);
+  --surface-strong: rgba(255,255,255,0.12);
+  --border: rgba(255,255,255,0.12);
+  --muted: #a1a1aa;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  color: var(--text-default, #0f172a);
+  background: #f8fafc;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  color: var(--text-default, #ffffff);
+  background: #000000;
+}
+
 
 /* Smooth scrolling */
 

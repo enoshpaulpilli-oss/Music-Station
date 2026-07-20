@@ -1,22 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function IntroScreen() {
   const [show, setShow] = useState(true);
-  const [mounted, setMounted] = useState(false);
   const [ready, setReady] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isTouchDevice] = useState(() =>
+    typeof window !== "undefined"
+      ? "ontouchstart" in window || navigator.maxTouchPoints > 0
+      : false,
+  );
   const [entering, setEntering] = useState(false);
+  const mounted = typeof window !== "undefined";
 
   useEffect(() => {
-    setMounted(true);
-
-    setIsTouchDevice(
-      "ontouchstart" in window || navigator.maxTouchPoints > 0
-    );
-
     const readyTimer = window.setTimeout(() => {
       setReady(true);
     }, 2800);
@@ -24,7 +22,7 @@ export default function IntroScreen() {
     return () => window.clearTimeout(readyTimer);
   }, []);
 
-  const handleEnter = () => {
+  const handleEnter = useCallback(() => {
     if (!ready || entering) return;
 
     setEntering(true);
@@ -33,7 +31,7 @@ export default function IntroScreen() {
       window.dispatchEvent(new Event("musicstation:intro-complete"));
       setShow(false);
     }, 750);
-  };
+  }, [ready, entering]);
 
   useEffect(() => {
     if (!ready) return;
@@ -50,7 +48,7 @@ export default function IntroScreen() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [ready, entering]);
+  }, [ready, handleEnter]);
 
   if (!mounted) {
     return <div className="fixed inset-0 z-[9999] bg-black" />;

@@ -1016,7 +1016,7 @@ export default function BandWorkspace() {
                     </div>
 
                     <div className="flex items-center">
-                      {teamMembers.map((member, index) => (
+                      {teamMembers.map((member) => (
                         <motion.div
                           key={member.name}
                           whileHover={{

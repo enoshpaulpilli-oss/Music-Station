@@ -18,6 +18,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { supabase } from "@/lib/supabase/client";
+import NotificationsDropdown from "./components/NotificationsDropdown";
 
 type ToolType =
   | "chords"
@@ -508,6 +509,8 @@ export default function DashboardPage() {
   const [checkingSession, setCheckingSession] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [unreadNotifications] = useState(0);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -738,7 +741,52 @@ export default function DashboardPage() {
   >
     BandSpace
   </Link>
+
+  <Link
+    href="/app/settings"
+    className="rounded-full px-5 py-2 text-xs font-medium text-neutral-500 transition hover:bg-white/[0.055] hover:text-white"
+  >
+    Settings
+  </Link>
 </nav>
+
+<div className="flex items-center gap-2">
+  <button
+    type="button"
+    onClick={() => setNotificationsOpen((current) => !current)}
+    aria-label="Open notifications"
+    className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.035] text-white/45 transition hover:border-white/[0.12] hover:bg-white/[0.07] hover:text-white"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className="h-4 w-4"
+      aria-hidden="true"
+    >
+      <path
+        d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10 21h4"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+    {unreadNotifications > 0 && (
+      <span className="absolute right-2 top-2 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-violet-400 shadow-[0_0_10px_rgba(167,139,250,0.9)]" />
+    )}
+  </button>
+
+  <NotificationsDropdown
+    open={notificationsOpen}
+    onClose={() => setNotificationsOpen(false)}
+  />
+</div>
 
 <div className="relative">
             <button
@@ -819,6 +867,13 @@ export default function DashboardPage() {
                         {user?.email}
                       </p>
                     </div>
+
+                    <Link
+                      href="/app/settings"
+                      className="mt-2 block rounded-xl px-3 py-3 text-sm text-white/55 transition hover:bg-white/[0.06] hover:text-white"
+                    >
+                      Settings
+                    </Link>
 
                     <button
                       type="button"

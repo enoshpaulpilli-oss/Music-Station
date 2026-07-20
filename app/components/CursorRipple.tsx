@@ -207,8 +207,9 @@ export default function CursorRipple() {
   }, [createTapBurst, isDesktopPointer]);
 
   useEffect(() => {
+    const cleanupTimers = cleanupTimersRef.current.slice();
     return () => {
-      cleanupTimersRef.current.forEach((timer) => {
+      cleanupTimers.forEach((timer) => {
         window.clearTimeout(timer);
       });
     };

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import CommandPalette from "./CommandPalette";
+import ThemeManager from "./components/ThemeManager";
 
 export const metadata: Metadata = {
   title: "Music Space | Personal Studio",
@@ -10,5 +12,11 @@ export default function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <ThemeManager />
+      <CommandPalette />
+      {children}
+    </>
+  );
 }

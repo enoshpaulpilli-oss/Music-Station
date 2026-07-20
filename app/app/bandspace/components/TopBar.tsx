@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import NotificationsDropdown from "../../components/NotificationsDropdown";
 
 export default function TopBar() {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-black/55 backdrop-blur-2xl">
@@ -131,11 +133,13 @@ export default function TopBar() {
             </svg>
           </button>
 
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.035] text-white/45 transition hover:border-white/[0.12] hover:bg-white/[0.07] hover:text-white"
-          >
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setNotificationsOpen((current) => !current)}
+              aria-label="Notifications"
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.035] text-white/45 transition hover:border-white/[0.12] hover:bg-white/[0.07] hover:text-white"
+            >
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -159,6 +163,12 @@ export default function TopBar() {
 
             <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_10px_rgba(167,139,250,0.9)]" />
           </button>
+
+          <NotificationsDropdown
+            open={notificationsOpen}
+            onClose={() => setNotificationsOpen(false)}
+          />
+          </div>
 
           <div className="relative">
             <button
@@ -216,12 +226,12 @@ export default function TopBar() {
                     Back to Personal Studio
                   </Link>
 
-                  <button
-                    type="button"
-                    className="block w-full rounded-xl px-3 py-2.5 text-left text-sm text-white/55 transition hover:bg-white/[0.06] hover:text-white"
+                  <Link
+                    href="/app/settings"
+                    className="mt-2 block rounded-xl px-3 py-2.5 text-sm text-white/55 transition hover:bg-white/[0.06] hover:text-white"
                   >
                     Settings
-                  </button>
+                  </Link>
                 </motion.div>
               )}
             </AnimatePresence>

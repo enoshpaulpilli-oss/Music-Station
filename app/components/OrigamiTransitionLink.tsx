@@ -140,8 +140,7 @@ export default function OrigamiTransitionLink({
   const stageRef =
     useRef<TransitionStage>("idle");
 
-  const [mounted, setMounted] =
-    useState(false);
+  const mounted = typeof window !== "undefined";
 
   const [stage, setStageState] =
     useState<TransitionStage>("idle");
@@ -325,8 +324,6 @@ export default function OrigamiTransitionLink({
   );
 
   useEffect(() => {
-    setMounted(true);
-
     if (href) {
       router.prefetch(href);
     }
@@ -387,12 +384,12 @@ export default function OrigamiTransitionLink({
   }, [href, router, startTransition]);
 
   useEffect(() => {
+    const timeouts = timeoutsRef.current.slice();
+
     return () => {
-      timeoutsRef.current.forEach(
-        (timeout) => {
-          window.clearTimeout(timeout);
-        }
-      );
+      timeouts.forEach((timeout) => {
+        window.clearTimeout(timeout);
+      });
 
       cardAnimationRef.current?.cancel();
 
