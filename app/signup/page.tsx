@@ -13,6 +13,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
 
@@ -28,7 +29,7 @@ export default function SignupPage() {
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/app`,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             name: name.trim(),
           },
@@ -48,13 +49,38 @@ export default function SignupPage() {
       }
 
       setMessage(
-        "Account created! Check your email and confirm your account. After confirmation, you will be taken to your dashboard."
+        "Account created! Check your email and confirm your account."
       );
     } catch {
       setIsError(true);
       setMessage("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    setMessage("");
+    setIsError(false);
+    setGoogleLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        setIsError(true);
+        setMessage(error.message);
+        setGoogleLoading(false);
+      }
+    } catch {
+      setIsError(true);
+      setMessage("Google sign up could not be started. Please try again.");
+      setGoogleLoading(false);
     }
   };
 
@@ -85,7 +111,51 @@ export default function SignupPage() {
           Practice Suite.
         </p>
 
-        <form onSubmit={handleSignup} className="mt-8 space-y-5">
+        <button
+          type="button"
+          onClick={handleGoogleSignup}
+          disabled={googleLoading || loading}
+          className="mt-8 flex w-full items-center justify-center gap-3 rounded-full border border-white/15 bg-white px-6 py-3.5 font-semibold text-black transition hover:-translate-y-0.5 hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 48 48"
+            className="h-5 w-5"
+          >
+            <path
+              fill="#FFC107"
+              d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5Z"
+            />
+            <path
+              fill="#FF3D00"
+              d="m6.3 14.7 6.6 4.8C14.7 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34.1 6.1 29.3 4 24 4c-7.7 0-14.3 4.3-17.7 10.7Z"
+            />
+            <path
+              fill="#4CAF50"
+              d="M24 44c5.2 0 10-2 13.5-5.2l-6.2-5.2C29.2 35.2 26.7 36 24 36c-5.3 0-9.8-3.3-11.5-8l-6.5 5C9.3 39.5 16.1 44 24 44Z"
+            />
+            <path
+              fill="#1976D2"
+              d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.2-3.5 5.7-6.7 7.3l6.2 5.2C39.6 36.2 44 30.7 44 24c0-1.3-.1-2.3-.4-3.5Z"
+            />
+          </svg>
+
+          {googleLoading
+            ? "Connecting to Google..."
+            : "Continue with Google"}
+        </button>
+
+        <div className="my-7 flex items-center gap-4">
+          <div className="h-px flex-1 bg-white/10" />
+
+          <span className="text-xs uppercase tracking-[0.2em] text-neutral-500">
+            Or
+          </span>
+
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
+
+        <form onSubmit={handleSignup} className="space-y-5">
           <label className="block">
             <span className="text-xs font-medium text-neutral-400">Name</span>
 
@@ -146,10 +216,10 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || googleLoading}
             className="w-full rounded-full bg-purple-600 px-6 py-4 text-sm font-semibold text-white transition hover:-translate-y-1 hover:bg-purple-500 hover:shadow-[0_0_50px_rgba(168,85,247,0.35)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
           >
-            {loading ? "Creating account..." : "Create account"}
+            {loading ? "Creating account..." : "Create account with email"}
           </button>
         </form>
 
