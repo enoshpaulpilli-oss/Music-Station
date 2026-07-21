@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { applyThemePreferences } from "../components/ThemeManager";
+import { useToast } from "../components/ui/Toast";
 
 const themes = [
   { value: "system", label: "System" },
@@ -55,6 +56,7 @@ const defaultPreferences = {
 };
 
 export default function SettingsPage() {
+    const { toast: showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [resettingPassword, setResettingPassword] = useState(false);
@@ -69,27 +71,30 @@ export default function SettingsPage() {
   } | null>(null);
 
   const validationErrors = useMemo(() => {
-    const errors: Record<string, string> = {};
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const errors: Record<string, string> = {};
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Profile fields are optional. Only validate a field when the user entered something.
-    if (preferences.email.trim() && !emailPattern.test(preferences.email)) {
-      errors.email = "Enter a valid email.";
-    }
+  if (
+    (preferences.email ?? "").trim() &&
+    !emailPattern.test(preferences.email ?? "")
+  ) {
+    errors.email = "Enter a valid email.";
+  }
 
-    if (
-      preferences.username.trim() &&
-      preferences.username.trim().length < 3
-    ) {
-      errors.username = "Username must be at least 3 characters.";
-    }
+  if (
+    (preferences.username ?? "").trim() &&
+    (preferences.username ?? "").trim().length < 3
+  ) {
+    errors.username = "Username must be at least 3 characters.";
+  }
 
-    return errors;
-  }, [preferences.email, preferences.username]);
+  return errors;
+}, [preferences.email, preferences.username]);
 
-  const canSave =
-    isDirty && Object.keys(validationErrors).length === 0 && !saving;
-
+const canSave =
+  isDirty &&
+  Object.keys(validationErrors).length === 0 &&
+  !saving;
   // Preview appearance changes immediately. Save Changes still persists them.
   useEffect(() => {
     if (loading) return;
@@ -294,10 +299,13 @@ export default function SettingsPage() {
       }
 
       setMessage("Settings saved successfully.");
-      setToast({
-        type: "success",
-        message: "Settings saved successfully.",
-      });
+
+showToast({
+  variant: "success",
+  title: "Settings saved",
+  message: "Your Music Space preferences are now up to date.",
+});
+      
     } catch (saveError) {
       console.error("Unable to sync settings:", saveError);
       setMessage("Settings saved on this device.");
@@ -390,7 +398,7 @@ export default function SettingsPage() {
               <label className="space-y-2 text-sm text-[var(--text-muted)]">
                 <span>Profile picture URL</span>
                 <input
-                  value={preferences.profile_picture}
+                 value={preferences.profile_picture ?? ""}
                   onChange={(event) => handleChange("profile_picture", event.target.value)}
                   placeholder="https://..."
                   className="w-full rounded-3xl border border-[var(--border)] bg-[var(--background-elevated)] px-4 py-3 text-[var(--text-default)] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-ring)]"
@@ -400,7 +408,7 @@ export default function SettingsPage() {
               <label className="space-y-2 text-sm text-[var(--text-muted)]">
                 <span>Display name</span>
                 <input
-                  value={preferences.display_name}
+                  value={preferences.display_name ?? ""}
                   onChange={(event) => handleChange("display_name", event.target.value)}
                   placeholder="Your display name"
                   className="w-full rounded-3xl border border-[var(--border)] bg-[var(--background-elevated)] px-4 py-3 text-[var(--text-default)] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-ring)]"
@@ -413,7 +421,7 @@ export default function SettingsPage() {
               <label className="space-y-2 text-sm text-[var(--text-muted)]">
                 <span>Username</span>
                 <input
-                  value={preferences.username}
+                 value={preferences.username ?? ""}
                   onChange={(event) => handleChange("username", event.target.value)}
                   placeholder="yourusername"
                   className="w-full rounded-3xl border border-[var(--border)] bg-[var(--background-elevated)] px-4 py-3 text-[var(--text-default)] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-ring)]"
@@ -426,7 +434,7 @@ export default function SettingsPage() {
               <label className="space-y-2 text-sm text-[var(--text-muted)]">
                 <span>Email</span>
                 <input
-                  value={preferences.email}
+                  value={preferences.email ?? ""}
                   onChange={(event) => handleChange("email", event.target.value)}
                   placeholder="you@example.com"
                   className="w-full rounded-3xl border border-[var(--border)] bg-[var(--background-elevated)] px-4 py-3 text-[var(--text-default)] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-ring)]"

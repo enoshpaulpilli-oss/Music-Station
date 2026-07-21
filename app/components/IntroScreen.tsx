@@ -5,14 +5,22 @@ import { AnimatePresence, motion } from "framer-motion";
 
 export default function IntroScreen() {
   const [show, setShow] = useState(true);
-  const [ready, setReady] = useState(false);
-  const [isTouchDevice] = useState(() =>
-    typeof window !== "undefined"
-      ? "ontouchstart" in window || navigator.maxTouchPoints > 0
-      : false,
+const [ready, setReady] = useState(false);
+const [isTouchDevice, setIsTouchDevice] =
+  useState(false);
+const [entering, setEntering] =
+  useState(false);
+const [mounted, setMounted] =
+  useState(false);
+
+useEffect(() => {
+  setMounted(true);
+
+  setIsTouchDevice(
+    "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0,
   );
-  const [entering, setEntering] = useState(false);
-  const mounted = typeof window !== "undefined";
+}, []);
 
   useEffect(() => {
     const readyTimer = window.setTimeout(() => {
@@ -51,7 +59,7 @@ export default function IntroScreen() {
   }, [ready, handleEnter]);
 
   if (!mounted) {
-    return <div className="fixed inset-0 z-[9999] bg-black" />;
+    return null;
   }
 
   return (
@@ -81,7 +89,6 @@ export default function IntroScreen() {
           `}
         >
           <motion.div
-          
             initial={{ opacity: 0 }}
             animate={{
               opacity: entering ? 0.4 : 1,
