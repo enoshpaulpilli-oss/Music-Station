@@ -33,9 +33,11 @@ import RecentActivity from "./components/overview/RecentActivity";
 import StorageCard from "./components/overview/StorageCard";
 
 import {
+  listBandMembers,
   listMyBands,
   type BandMembership,
 } from "@/lib/bandspace";
+import { supabase } from "@/lib/supabase/client";
 
 type PageMode =
   | "workspace"
@@ -172,6 +174,21 @@ export default function BandSpacePage() {
     string | null
   >(null);
 
+  const [
+    members,
+    setMembers,
+  ] = useState<BandMemberListItem[]>([]);
+
+  const [
+    membersLoading,
+    setMembersLoading,
+  ] = useState(false);
+
+  const [
+    membersError,
+    setMembersError,
+  ] = useState<string | null>(null);
+
   const loadBands = useCallback(
     async () => {
       setLoading(true);
@@ -244,6 +261,93 @@ export default function BandSpacePage() {
   useEffect(() => {
     void loadBands();
   }, [loadBands]);
+
+  const loadMembers = useCallback(
+    async (bandId: string) => {
+      setMembersLoading(true);
+      setMembersError(null);
+
+      try {
+        const [
+          bandMembers,
+          {
+            data: { user },
+          },
+        ] = await Promise.all([
+          listBandMembers(bandId),
+          supabase.auth.getUser(),
+        ]);
+
+        setMembers(
+          bandMembers.map((member) => ({
+            id: member.id,
+            userId: member.user_id,
+            name:
+              member.profile.display_name ||
+              member.profile.username ||
+              member.profile.email?.split("@")[0] ||
+              "Band member",
+            email: member.profile.email,
+            role: normalizeMemberRole(
+              member.role,
+            ),
+            avatarUrl:
+              member.profile.avatar_url,
+            isCurrentUser:
+              member.user_id === user?.id,
+          })),
+        );
+      } catch (caughtError) {
+        setMembers([]);
+        setMembersError(
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Band members could not be loaded.",
+        );
+      } finally {
+        setMembersLoading(false);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const bandId =
+      activeMembership?.band_id;
+
+    if (!bandId) {
+      setMembers([]);
+      setMembersError(null);
+      return;
+    }
+
+    void loadMembers(bandId);
+
+    const channel = supabase
+      .channel(`band-members-${bandId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "band_members",
+          filter: `band_id=eq.${bandId}`,
+        },
+        () => {
+          void loadMembers(bandId);
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(
+        channel,
+      );
+    };
+  }, [
+    activeMembership?.band_id,
+    loadMembers,
+  ]);
 
   const handleOnboardingComplete = (
     membership: BandMembership,
@@ -380,21 +484,6 @@ export default function BandSpacePage() {
   const inviteAllowed =
     canInviteMembers(role);
 
-  const currentMembers: BandMemberListItem[] =
-    [
-      {
-        id: `current-${band.id}`,
-        userId:
-          band.created_by ||
-          "current-user",
-        name: "You",
-        role: normalizeMemberRole(
-          role,
-        ),
-        isCurrentUser: true,
-      },
-    ];
-
   return (
     <>
       <BandShell
@@ -449,15 +538,43 @@ export default function BandSpacePage() {
         )}
 
         {activeSection ===
-          "members" && (
-          <MembersList
-            members={currentMembers}
-            currentUserRole={role}
-            onInviteMember={() =>
-              setInviteModalOpen(true)
-            }
-          />
-        )}
+          "members" &&
+          (membersError ? (
+            <section className="rounded-[2rem] border border-red-500/25 bg-[var(--surface)] p-7 text-center backdrop-blur-3xl">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-red-500/10 text-red-400">
+                !
+              </div>
+
+              <h2 className="mt-5 text-xl font-semibold text-[var(--text-default)]">
+                Members could not load
+              </h2>
+
+              <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
+                {membersError}
+              </p>
+
+              <Button
+                type="button"
+                className="mt-6"
+                onClick={() =>
+                  void loadMembers(
+                    activeMembership.band_id,
+                  )
+                }
+              >
+                Try again
+              </Button>
+            </section>
+          ) : (
+            <MembersList
+              members={members}
+              currentUserRole={role}
+              loading={membersLoading}
+              onInviteMember={() =>
+                setInviteModalOpen(true)
+              }
+            />
+          ))}
 
         {activeSection !==
           "overview" &&
