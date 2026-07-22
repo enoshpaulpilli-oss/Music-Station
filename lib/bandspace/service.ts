@@ -29,6 +29,17 @@ const bandSelection = `
   archived_at
 `;
 
+export type BandJoinRequestResult = {
+  request_id: string;
+  band_id: string;
+  band_name: string;
+  request_status:
+    | "pending"
+    | "approved"
+    | "rejected"
+    | "cancelled";
+};
+
 export class BandSpaceError extends Error {
   code?: string;
 
@@ -299,9 +310,9 @@ export async function updateBand(
   return data as Band;
 }
 
-export async function joinBandByCode(
+export async function requestBandJoinByCode(
   joinCode: string,
-): Promise<BandMembership> {
+): Promise<BandJoinRequestResult> {
   const normalizedCode =
     joinCode.trim().toLowerCase();
 
@@ -313,7 +324,7 @@ export async function joinBandByCode(
   }
 
   const { data, error } = await supabase.rpc(
-    "join_band_by_code",
+    "request_band_join_by_code",
     {
       p_join_code: normalizedCode,
     },
@@ -323,13 +334,20 @@ export async function joinBandByCode(
     throwBandSpaceError(error);
   }
 
-  if (!data) {
+  const request = normalizeRelation(
+    data as
+      | BandJoinRequestResult
+      | BandJoinRequestResult[]
+      | null,
+  );
+
+  if (!request) {
     throw new BandSpaceError(
-      "BandSpace could not be joined.",
+      "The BandSpace join request could not be created.",
     );
   }
 
-  return getMyBandMembership(data as string);
+  return request;
 }
 
 export async function listBandMembers(

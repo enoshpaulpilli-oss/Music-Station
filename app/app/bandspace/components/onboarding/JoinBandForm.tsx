@@ -8,7 +8,8 @@ import {
 import { Button } from "../../../components/ui";
 
 import {
-  joinBandByCode,
+  requestBandJoinByCode,
+  type BandJoinRequestResult,
   type BandMembership,
 } from "@/lib/bandspace";
 
@@ -20,7 +21,6 @@ type JoinBandFormProps = {
 };
 
 export default function JoinBandForm({
-  onJoined,
   onCancel,
 }: JoinBandFormProps) {
   const [joinCode, setJoinCode] =
@@ -33,12 +33,17 @@ export default function JoinBandForm({
     string | null
   >(null);
 
+  const [request, setRequest] =
+    useState<BandJoinRequestResult | null>(
+      null,
+    );
+
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
-    if (submitting) {
+    if (submitting || request) {
       return;
     }
 
@@ -56,22 +61,69 @@ export default function JoinBandForm({
     setError(null);
 
     try {
-      const membership =
-        await joinBandByCode(
+      const createdRequest =
+        await requestBandJoinByCode(
           normalizedCode,
         );
 
-      onJoined(membership);
+      setRequest(createdRequest);
+      setJoinCode("");
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "The band could not be joined. Check the code and try again.",
+          : "The join request could not be sent. Check the code and try again.",
       );
-
+    } finally {
       setSubmitting(false);
     }
   };
+
+  if (request) {
+    return (
+      <div className="space-y-5">
+        <div className="rounded-[2rem] border border-[var(--accent-ring)] bg-[var(--accent-soft)] px-6 py-7 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--accent-ring)] bg-[var(--surface)] text-2xl text-[var(--accent)]">
+            ✓
+          </div>
+
+          <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+            Request sent
+          </p>
+
+          <h3 className="mt-2 text-2xl font-semibold tracking-[-0.035em] text-[var(--text-default)]">
+            Waiting for approval
+          </h3>
+
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[var(--text-muted)]">
+            Your request to join{" "}
+            <span className="font-semibold text-[var(--text-default)]">
+              {request.band_name}
+            </span>{" "}
+            was sent to the band owner and
+            administrators.
+          </p>
+
+          <p className="mt-3 text-xs leading-5 text-[var(--text-subtle)]">
+            You will receive a notification
+            after they approve or decline it.
+          </p>
+        </div>
+
+        {onCancel && (
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onCancel}
+            >
+              Close
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <form
@@ -147,14 +199,14 @@ export default function JoinBandForm({
 
           <div>
             <p className="text-sm font-medium text-[var(--text-default)]">
-              Your membership is secure
+              Approval is required
             </p>
 
             <p className="mt-1 text-xs leading-5 text-[var(--text-subtle)]">
-              Joining adds your account to
-              the band. Private BandSpaces
-              remain visible only to their
-              approved members.
+              Entering a valid code sends a
+              request. You will not enter the
+              BandSpace until an owner or
+              administrator approves it.
             </p>
           </div>
         </div>
@@ -195,8 +247,8 @@ export default function JoinBandForm({
           }
         >
           {submitting
-            ? "Joining BandSpace..."
-            : "Join BandSpace"}
+            ? "Sending request..."
+            : "Request to join"}
         </Button>
       </div>
     </form>
