@@ -10,7 +10,10 @@ import {
 
 const symbols = ["𝄞", "♪", "♫", "♩", "♬", "𝄢"];
 
-const cursorSvg = `
+function createNativeMusicCursor(
+  symbol: string,
+) {
+  const cursorSvg = `
 <svg
   xmlns="http://www.w3.org/2000/svg"
   width="34"
@@ -27,14 +30,14 @@ const cursorSvg = `
     stroke="#7e22ce"
     stroke-width="0.45"
     paint-order="stroke"
-  >𝄞</text>
+  >${symbol}</text>
 </svg>
 `;
 
-const nativeMusicCursor =
-  `url("data:image/svg+xml,${encodeURIComponent(
+  return `url("data:image/svg+xml,${encodeURIComponent(
     cursorSvg,
   )}") 8 5, auto`;
+}
 
 type FlyingSymbol = {
   id: number;
@@ -60,9 +63,19 @@ export default function CursorRipple() {
   ] = useState(false);
 
   const [
+    cursorSymbolIndex,
+    setCursorSymbolIndex,
+  ] = useState(0);
+
+  const [
     flyingSymbols,
     setFlyingSymbols,
   ] = useState<FlyingSymbol[]>([]);
+
+  const nativeMusicCursor =
+    createNativeMusicCursor(
+      symbols[cursorSymbolIndex],
+    );
 
   const addSymbols = useCallback(
     (newSymbols: FlyingSymbol[]) => {
@@ -114,8 +127,13 @@ export default function CursorRipple() {
         },
       ]);
 
-      symbolIndexRef.current =
+      const nextIndex =
         (index + 1) % symbols.length;
+
+      symbolIndexRef.current =
+        nextIndex;
+
+      setCursorSymbolIndex(nextIndex);
     },
     [addSymbols],
   );
@@ -164,9 +182,14 @@ export default function CursorRipple() {
 
       addSymbols(burst);
 
-      symbolIndexRef.current =
+      const nextIndex =
         (startIndex + burst.length) %
         symbols.length;
+
+      symbolIndexRef.current =
+        nextIndex;
+
+      setCursorSymbolIndex(nextIndex);
     },
     [addSymbols],
   );
