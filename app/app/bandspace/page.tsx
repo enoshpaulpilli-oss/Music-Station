@@ -20,6 +20,8 @@ import type { BandSection } from "./components/layout/BandSidebar";
 
 import InviteMemberModal from "./components/members/InviteMemberModal";
 
+import PendingJoinRequests from "./components/members/PendingJoinRequests";
+
 import MembersList, {
   type BandMemberListItem,
   type BandMemberRole,
@@ -538,43 +540,53 @@ export default function BandSpacePage() {
         )}
 
         {activeSection ===
-          "members" &&
-          (membersError ? (
-            <section className="rounded-[2rem] border border-red-500/25 bg-[var(--surface)] p-7 text-center backdrop-blur-3xl">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-red-500/10 text-red-400">
-                !
-              </div>
-
-              <h2 className="mt-5 text-xl font-semibold text-[var(--text-default)]">
-                Members could not load
-              </h2>
-
-              <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
-                {membersError}
-              </p>
-
-              <Button
-                type="button"
-                className="mt-6"
-                onClick={() =>
-                  void loadMembers(
-                    activeMembership.band_id,
-                  )
-                }
-              >
-                Try again
-              </Button>
-            </section>
-          ) : (
-            <MembersList
-              members={members}
-              currentUserRole={role}
-              loading={membersLoading}
-              onInviteMember={() =>
-                setInviteModalOpen(true)
+          "members" && (
+          <div className="space-y-6">
+            <PendingJoinRequests
+              bandId={
+                activeMembership.band_id
               }
+              currentUserRole={role}
             />
-          ))}
+
+            {membersError ? (
+              <section className="rounded-[2rem] border border-red-500/25 bg-[var(--surface)] p-7 text-center backdrop-blur-3xl">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-red-500/10 text-red-400">
+                  !
+                </div>
+
+                <h2 className="mt-5 text-xl font-semibold text-[var(--text-default)]">
+                  Members could not load
+                </h2>
+
+                <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
+                  {membersError}
+                </p>
+
+                <Button
+                  type="button"
+                  className="mt-6"
+                  onClick={() =>
+                    void loadMembers(
+                      activeMembership.band_id,
+                    )
+                  }
+                >
+                  Try again
+                </Button>
+              </section>
+            ) : (
+              <MembersList
+                members={members}
+                currentUserRole={role}
+                loading={membersLoading}
+                onInviteMember={() =>
+                  setInviteModalOpen(true)
+                }
+              />
+            )}
+          </div>
+        )}
 
         {activeSection !==
           "overview" &&
