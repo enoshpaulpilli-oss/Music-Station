@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 
 const symbols = ["𝄞", "♪", "♫", "♩", "♬", "𝄢"];
 
@@ -18,58 +24,61 @@ type FlyingSymbol = {
 export default function CursorRipple() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const symbolIndexRef = useRef(0);
-  const cleanupTimersRef = useRef<number[]>([]);
+  const timerRefs = useRef<Set<number>>(new Set());
 
-  const mousePosition = useRef({
-    x: -100,
-    y: -100,
-  });
+  const [isDesktopPointer, setIsDesktopPointer] =
+    useState(false);
 
-  const [isDesktopPointer, setIsDesktopPointer] = useState(false);
-  const [symbolIndex, setSymbolIndex] = useState(0);
-  const [flyingSymbols, setFlyingSymbols] = useState<FlyingSymbol[]>([]);
+  const [symbolIndex, setSymbolIndex] =
+    useState(0);
 
-  const currentSymbol = symbols[symbolIndex];
+  const [flyingSymbols, setFlyingSymbols] =
+    useState<FlyingSymbol[]>([]);
 
-  useEffect(() => {
-    symbolIndexRef.current = symbolIndex;
-  }, [symbolIndex]);
-
-  useEffect(() => {
-    const desktopPointerQuery = window.matchMedia(
-      "(hover: hover) and (pointer: fine)"
-    );
-
-    const updatePointerMode = () => {
-      setIsDesktopPointer(desktopPointerQuery.matches);
-    };
-
-    updatePointerMode();
-
-    desktopPointerQuery.addEventListener("change", updatePointerMode);
-
-    return () => {
-      desktopPointerQuery.removeEventListener("change", updatePointerMode);
-    };
-  }, []);
-
-  const removeSymbolAfterAnimation = useCallback((id: number) => {
-    const timer = window.setTimeout(() => {
-      setFlyingSymbols((currentSymbols) =>
-        currentSymbols.filter((symbol) => symbol.id !== id)
+  const addFlyingSymbols = useCallback(
+    (newSymbols: FlyingSymbol[]) => {
+      setFlyingSymbols((current) =>
+        [...current, ...newSymbols].slice(-24),
       );
-    }, 950);
 
-    cleanupTimersRef.current.push(timer);
-  }, []);
+      const idsToRemove = new Set(
+        newSymbols.map((item) => item.id),
+      );
+
+      const timer = window.setTimeout(() => {
+        timerRefs.current.delete(timer);
+
+        setFlyingSymbols((current) =>
+          current.filter(
+            (item) => !idsToRemove.has(item.id),
+          ),
+        );
+      }, 950);
+
+      timerRefs.current.add(timer);
+    },
+    [],
+  );
+
+  const moveToNextSymbol = useCallback(
+    (amount = 1) => {
+      const nextIndex =
+        (symbolIndexRef.current + amount) %
+        symbols.length;
+
+      symbolIndexRef.current = nextIndex;
+      setSymbolIndex(nextIndex);
+    },
+    [],
+  );
 
   const createSingleSymbol = useCallback(
     (x: number, y: number) => {
-      const currentIndex = symbolIndexRef.current;
-      const id = Date.now() + Math.random();
+      const currentIndex =
+        symbolIndexRef.current;
 
-      const newSymbol: FlyingSymbol = {
-        id,
+      const item: FlyingSymbol = {
+        id: performance.now() + Math.random(),
         symbol: symbols[currentIndex],
         x,
         y,
@@ -79,145 +88,225 @@ export default function CursorRipple() {
         scale: 0.9 + Math.random() * 0.35,
       };
 
-      setFlyingSymbols((currentSymbols) => [
-        ...currentSymbols,
-        newSymbol,
-      ]);
-
-      const nextIndex = (currentIndex + 1) % symbols.length;
-
-      symbolIndexRef.current = nextIndex;
-      setSymbolIndex(nextIndex);
-
-      removeSymbolAfterAnimation(id);
+      addFlyingSymbols([item]);
+      moveToNextSymbol();
     },
-    [removeSymbolAfterAnimation]
+    [addFlyingSymbols, moveToNextSymbol],
   );
 
   const createTapBurst = useCallback(
     (x: number, y: number) => {
       const burstAmount = 4;
+      const startIndex =
+        symbolIndexRef.current;
 
-      for (let index = 0; index < burstAmount; index += 1) {
-        const symbolPosition =
-          (symbolIndexRef.current + index) % symbols.length;
+      const burst: FlyingSymbol[] =
+        Array.from(
+          { length: burstAmount },
+          (_, index) => {
+            const angle =
+              -Math.PI +
+              Math.random() * Math.PI;
 
-        const id =
-          Date.now() +
-          Math.random() +
-          index;
+            const distance =
+              35 + Math.random() * 55;
 
-        const angle =
-          -Math.PI +
-          Math.random() * Math.PI;
+            return {
+              id:
+                performance.now() +
+                Math.random() +
+                index,
+              symbol:
+                symbols[
+                  (startIndex + index) %
+                    symbols.length
+                ],
+              x,
+              y,
+              driftX:
+                Math.cos(angle) * distance,
+              driftY:
+                -45 - Math.random() * 75,
+              rotation:
+                Math.random() * 140 - 70,
+              scale:
+                0.75 +
+                Math.random() * 0.55,
+            };
+          },
+        );
 
-        const distance =
-          35 + Math.random() * 55;
-
-        const burstSymbol: FlyingSymbol = {
-          id,
-          symbol: symbols[symbolPosition],
-          x,
-          y,
-          driftX: Math.cos(angle) * distance,
-          driftY: -45 - Math.random() * 75,
-          rotation: Math.random() * 140 - 70,
-          scale: 0.75 + Math.random() * 0.55,
-        };
-
-        setFlyingSymbols((currentSymbols) => [
-          ...currentSymbols,
-          burstSymbol,
-        ]);
-
-        removeSymbolAfterAnimation(id);
-      }
-
-      const nextIndex =
-        (symbolIndexRef.current + burstAmount) % symbols.length;
-
-      symbolIndexRef.current = nextIndex;
-      setSymbolIndex(nextIndex);
+      addFlyingSymbols(burst);
+      moveToNextSymbol(burstAmount);
     },
-    [removeSymbolAfterAnimation]
+    [addFlyingSymbols, moveToNextSymbol],
   );
+
+  useEffect(() => {
+    const pointerQuery =
+      window.matchMedia(
+        "(hover: hover) and (pointer: fine)",
+      );
+
+    const updatePointerMode = () => {
+      setIsDesktopPointer(
+        pointerQuery.matches,
+      );
+    };
+
+    updatePointerMode();
+
+    pointerQuery.addEventListener(
+      "change",
+      updatePointerMode,
+    );
+
+    return () => {
+      pointerQuery.removeEventListener(
+        "change",
+        updatePointerMode,
+      );
+    };
+  }, []);
 
   useEffect(() => {
     if (!isDesktopPointer) {
       return;
     }
 
-    const handleMouseMove = (event: MouseEvent) => {
-      mousePosition.current = {
-        x: event.clientX,
-        y: event.clientY,
-      };
-    };
-
-    const handleMouseClick = (event: MouseEvent) => {
-      createSingleSymbol(event.clientX, event.clientY);
-    };
-
-    let animationFrame = 0;
-
-    const animateCursor = () => {
-      if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate3d(
-          ${mousePosition.current.x - 12}px,
-          ${mousePosition.current.y - 14}px,
-          0
-        )`;
+    const moveCursor = (
+      event: PointerEvent,
+    ) => {
+      if (event.pointerType === "touch") {
+        return;
       }
 
-      animationFrame = window.requestAnimationFrame(animateCursor);
+      const cursor = cursorRef.current;
+
+      if (!cursor) {
+        return;
+      }
+
+      cursor.style.transform =
+        `translate3d(${event.clientX - 12}px, ${
+          event.clientY - 14
+        }px, 0)`;
+
+      cursor.style.opacity = "1";
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("click", handleMouseClick);
+    const handleClick = (
+      event: MouseEvent,
+    ) => {
+      createSingleSymbol(
+        event.clientX,
+        event.clientY,
+      );
+    };
 
-    animateCursor();
+    const hideCursor = () => {
+      if (cursorRef.current) {
+        cursorRef.current.style.opacity =
+          "0";
+      }
+    };
+
+    window.addEventListener(
+      "pointermove",
+      moveCursor,
+      { passive: true },
+    );
+
+    window.addEventListener(
+      "click",
+      handleClick,
+    );
+
+    window.addEventListener(
+      "blur",
+      hideCursor,
+    );
+
+    document.documentElement.addEventListener(
+      "mouseleave",
+      hideCursor,
+    );
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("click", handleMouseClick);
-      window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener(
+        "pointermove",
+        moveCursor,
+      );
+
+      window.removeEventListener(
+        "click",
+        handleClick,
+      );
+
+      window.removeEventListener(
+        "blur",
+        hideCursor,
+      );
+
+      document.documentElement.removeEventListener(
+        "mouseleave",
+        hideCursor,
+      );
     };
-  }, [createSingleSymbol, isDesktopPointer]);
+  }, [
+    createSingleSymbol,
+    isDesktopPointer,
+  ]);
 
   useEffect(() => {
     if (isDesktopPointer) {
       return;
     }
 
-    const handlePointerDown = (event: PointerEvent) => {
+    const handleTouch = (
+      event: PointerEvent,
+    ) => {
       if (event.pointerType !== "touch") {
         return;
       }
 
-      createTapBurst(event.clientX, event.clientY);
+      createTapBurst(
+        event.clientX,
+        event.clientY,
+      );
     };
 
-    window.addEventListener("pointerdown", handlePointerDown, {
-      passive: true,
-    });
+    window.addEventListener(
+      "pointerdown",
+      handleTouch,
+      { passive: true },
+    );
 
     return () => {
-      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener(
+        "pointerdown",
+        handleTouch,
+      );
     };
-  }, [createTapBurst, isDesktopPointer]);
+  }, [
+    createTapBurst,
+    isDesktopPointer,
+  ]);
 
   useEffect(() => {
-    const cleanupTimers = cleanupTimersRef.current.slice();
+    const timers = timerRefs.current;
+
     return () => {
-      cleanupTimers.forEach((timer) => {
+      timers.forEach((timer) => {
         window.clearTimeout(timer);
       });
+
+      timers.clear();
     };
   }, []);
 
   return (
     <>
-      {/* Permanent cursor exists only on real mouse/trackpad devices */}
       {isDesktopPointer && (
         <div
           ref={cursorRef}
@@ -235,20 +324,23 @@ export default function CursorRipple() {
             justify-center
             text-2xl
             text-purple-200
-            drop-shadow-[0_0_8px_rgba(216,180,254,0.9)]
+            opacity-0
             will-change-transform
           "
+          style={{
+            textShadow:
+              "0 0 6px rgba(216, 180, 254, 0.75)",
+          }}
         >
           <span
-            key={currentSymbol}
+            key={symbolIndex}
             className="animate-cursor-symbol-enter"
           >
-            {currentSymbol}
+            {symbols[symbolIndex]}
           </span>
         </div>
       )}
 
-      {/* Temporary desktop clicks and mobile tap bursts */}
       {flyingSymbols.map((item) => (
         <span
           key={item.id}
@@ -259,18 +351,23 @@ export default function CursorRipple() {
             z-[99998]
             text-xl
             text-purple-200
-           drop-shadow-[0_0_5px_rgba(216,180,254,0.7)]
             animate-musical-tap-burst
           "
           style={
             {
               left: item.x,
               top: item.y,
-              "--symbol-drift-x": `${item.driftX}px`,
-              "--symbol-drift-y": `${item.driftY}px`,
-              "--symbol-rotation": `${item.rotation}deg`,
-              "--symbol-scale": item.scale,
-            } as React.CSSProperties
+              textShadow:
+                "0 0 5px rgba(216, 180, 254, 0.65)",
+              "--symbol-drift-x":
+                `${item.driftX}px`,
+              "--symbol-drift-y":
+                `${item.driftY}px`,
+              "--symbol-rotation":
+                `${item.rotation}deg`,
+              "--symbol-scale":
+                item.scale,
+            } as CSSProperties
           }
         >
           {item.symbol}
