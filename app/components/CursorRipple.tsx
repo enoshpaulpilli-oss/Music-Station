@@ -72,10 +72,6 @@ export default function CursorRipple() {
     setFlyingSymbols,
   ] = useState<FlyingSymbol[]>([]);
 
-  const nativeMusicCursor =
-    createNativeMusicCursor(
-      symbols[cursorSymbolIndex],
-    );
 
   const addSymbols = useCallback(
     (newSymbols: FlyingSymbol[]) => {
@@ -289,6 +285,33 @@ export default function CursorRipple() {
   ]);
 
   useEffect(() => {
+    if (!isDesktopPointer) {
+      document.documentElement.style.removeProperty(
+        "--music-cursor",
+      );
+      return;
+    }
+
+    document.documentElement.style.setProperty(
+      "--music-cursor",
+      createNativeMusicCursor(
+        symbols[cursorSymbolIndex],
+      ),
+    );
+  }, [
+    cursorSymbolIndex,
+    isDesktopPointer,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      document.documentElement.style.removeProperty(
+        "--music-cursor",
+      );
+    };
+  }, []);
+
+  useEffect(() => {
     const timers = timersRef.current;
 
     return () => {
@@ -308,7 +331,7 @@ export default function CursorRipple() {
             html,
             body,
             body * {
-              cursor: ${nativeMusicCursor} !important;
+              cursor: var(--music-cursor, auto) !important;
             }
           `}
         </style>
