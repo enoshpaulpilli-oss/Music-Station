@@ -10,6 +10,28 @@ import {
 
 const symbols = ["𝄞", "♪", "♫", "♩", "♬", "𝄢"];
 
+const cursorSvg = `
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="30"
+  height="30"
+  viewBox="0 0 30 30"
+>
+  <path
+    d="M18 3v15.4a5.2 5.2 0 1 1-2-4.1V6.8L25 5v10.4a5.2 5.2 0 1 1-2-4.1V3.9L18 5V3z"
+    fill="#e9d5ff"
+    stroke="#7e22ce"
+    stroke-width="1"
+    stroke-linejoin="round"
+  />
+</svg>
+`;
+
+const nativeMusicCursor =
+  `url("data:image/svg+xml,${encodeURIComponent(
+    cursorSvg,
+  )}") 8 5, auto`;
+
 type FlyingSymbol = {
   id: number;
   symbol: string;
@@ -22,124 +44,127 @@ type FlyingSymbol = {
 };
 
 export default function CursorRipple() {
-  const cursorRef = useRef<HTMLDivElement>(null);
   const symbolIndexRef = useRef(0);
-  const timerRefs = useRef<Set<number>>(new Set());
 
-  const [isDesktopPointer, setIsDesktopPointer] =
-    useState(false);
+  const timersRef = useRef<
+    Set<number>
+  >(new Set());
 
-  const [symbolIndex, setSymbolIndex] =
-    useState(0);
+  const [
+    isDesktopPointer,
+    setIsDesktopPointer,
+  ] = useState(false);
 
-  const [flyingSymbols, setFlyingSymbols] =
-    useState<FlyingSymbol[]>([]);
+  const [
+    flyingSymbols,
+    setFlyingSymbols,
+  ] = useState<FlyingSymbol[]>([]);
 
-  const addFlyingSymbols = useCallback(
+  const addSymbols = useCallback(
     (newSymbols: FlyingSymbol[]) => {
       setFlyingSymbols((current) =>
         [...current, ...newSymbols].slice(-24),
       );
 
-      const idsToRemove = new Set(
+      const ids = new Set(
         newSymbols.map((item) => item.id),
       );
 
       const timer = window.setTimeout(() => {
-        timerRefs.current.delete(timer);
+        timersRef.current.delete(timer);
 
         setFlyingSymbols((current) =>
           current.filter(
-            (item) => !idsToRemove.has(item.id),
+            (item) => !ids.has(item.id),
           ),
         );
       }, 950);
 
-      timerRefs.current.add(timer);
+      timersRef.current.add(timer);
     },
     [],
   );
 
-  const moveToNextSymbol = useCallback(
-    (amount = 1) => {
-      const nextIndex =
-        (symbolIndexRef.current + amount) %
-        symbols.length;
-
-      symbolIndexRef.current = nextIndex;
-      setSymbolIndex(nextIndex);
-    },
-    [],
-  );
-
-  const createSingleSymbol = useCallback(
+  const createClickSymbol = useCallback(
     (x: number, y: number) => {
-      const currentIndex =
+      const index =
         symbolIndexRef.current;
 
-      const item: FlyingSymbol = {
-        id: performance.now() + Math.random(),
-        symbol: symbols[currentIndex],
-        x,
-        y,
-        driftX: Math.random() * 54 - 27,
-        driftY: -(70 + Math.random() * 45),
-        rotation: Math.random() * 80 - 40,
-        scale: 0.9 + Math.random() * 0.35,
-      };
+      addSymbols([
+        {
+          id:
+            performance.now() +
+            Math.random(),
+          symbol: symbols[index],
+          x,
+          y,
+          driftX:
+            Math.random() * 54 - 27,
+          driftY:
+            -(70 + Math.random() * 45),
+          rotation:
+            Math.random() * 80 - 40,
+          scale:
+            0.9 +
+            Math.random() * 0.35,
+        },
+      ]);
 
-      addFlyingSymbols([item]);
-      moveToNextSymbol();
+      symbolIndexRef.current =
+        (index + 1) % symbols.length;
     },
-    [addFlyingSymbols, moveToNextSymbol],
+    [addSymbols],
   );
 
-  const createTapBurst = useCallback(
+  const createTouchBurst = useCallback(
     (x: number, y: number) => {
-      const burstAmount = 4;
       const startIndex =
         symbolIndexRef.current;
 
-      const burst: FlyingSymbol[] =
-        Array.from(
-          { length: burstAmount },
-          (_, index) => {
-            const angle =
-              -Math.PI +
-              Math.random() * Math.PI;
+      const burst = Array.from(
+        { length: 4 },
+        (_, index): FlyingSymbol => {
+          const angle =
+            -Math.PI +
+            Math.random() * Math.PI;
 
-            const distance =
-              35 + Math.random() * 55;
+          const distance =
+            35 + Math.random() * 55;
 
-            return {
-              id:
-                performance.now() +
-                Math.random() +
-                index,
-              symbol:
-                symbols[
-                  (startIndex + index) %
-                    symbols.length
-                ],
-              x,
-              y,
-              driftX:
-                Math.cos(angle) * distance,
-              driftY:
-                -45 - Math.random() * 75,
-              rotation:
-                Math.random() * 140 - 70,
-              scale:
-                0.75 +
-                Math.random() * 0.55,
-            };
-          },
-        );
+          return {
+            id:
+              performance.now() +
+              Math.random() +
+              index,
+            symbol:
+              symbols[
+                (startIndex + index) %
+                  symbols.length
+              ],
+            x,
+            y,
+            driftX:
+              Math.cos(angle) *
+              distance,
+            driftY:
+              -45 -
+              Math.random() * 75,
+            rotation:
+              Math.random() * 140 - 70,
+            scale:
+              0.75 +
+              Math.random() * 0.55,
+          };
+        },
+      );
 
-      addFlyingSymbols(burst);
-      moveToNextSymbol(burstAmount);
+      addSymbols(burst);
+
+      symbolIndexRef.current =
+        (startIndex + burst.length) %
+        symbols.length;
     },
-    [addFlyingSymbols, moveToNextSymbol],
+    [addSymbols],
   );
 
   useEffect(() => {
@@ -174,87 +199,28 @@ export default function CursorRipple() {
       return;
     }
 
-    const moveCursor = (
-      event: PointerEvent,
-    ) => {
-      if (event.pointerType === "touch") {
-        return;
-      }
-
-      const cursor = cursorRef.current;
-
-      if (!cursor) {
-        return;
-      }
-
-      cursor.style.transform =
-        `translate3d(${event.clientX - 12}px, ${
-          event.clientY - 14
-        }px, 0)`;
-
-      cursor.style.opacity = "1";
-    };
-
     const handleClick = (
       event: MouseEvent,
     ) => {
-      createSingleSymbol(
+      createClickSymbol(
         event.clientX,
         event.clientY,
       );
     };
-
-    const hideCursor = () => {
-      if (cursorRef.current) {
-        cursorRef.current.style.opacity =
-          "0";
-      }
-    };
-
-    window.addEventListener(
-      "pointermove",
-      moveCursor,
-      { passive: true },
-    );
 
     window.addEventListener(
       "click",
       handleClick,
     );
 
-    window.addEventListener(
-      "blur",
-      hideCursor,
-    );
-
-    document.documentElement.addEventListener(
-      "mouseleave",
-      hideCursor,
-    );
-
     return () => {
-      window.removeEventListener(
-        "pointermove",
-        moveCursor,
-      );
-
       window.removeEventListener(
         "click",
         handleClick,
       );
-
-      window.removeEventListener(
-        "blur",
-        hideCursor,
-      );
-
-      document.documentElement.removeEventListener(
-        "mouseleave",
-        hideCursor,
-      );
     };
   }, [
-    createSingleSymbol,
+    createClickSymbol,
     isDesktopPointer,
   ]);
 
@@ -266,11 +232,13 @@ export default function CursorRipple() {
     const handleTouch = (
       event: PointerEvent,
     ) => {
-      if (event.pointerType !== "touch") {
+      if (
+        event.pointerType !== "touch"
+      ) {
         return;
       }
 
-      createTapBurst(
+      createTouchBurst(
         event.clientX,
         event.clientY,
       );
@@ -289,12 +257,12 @@ export default function CursorRipple() {
       );
     };
   }, [
-    createTapBurst,
+    createTouchBurst,
     isDesktopPointer,
   ]);
 
   useEffect(() => {
-    const timers = timerRefs.current;
+    const timers = timersRef.current;
 
     return () => {
       timers.forEach((timer) => {
@@ -308,37 +276,15 @@ export default function CursorRipple() {
   return (
     <>
       {isDesktopPointer && (
-        <div
-          ref={cursorRef}
-          aria-hidden="true"
-          className="
-            pointer-events-none
-            fixed
-            left-0
-            top-0
-            z-[99999]
-            flex
-            h-7
-            w-7
-            items-center
-            justify-center
-            text-2xl
-            text-purple-200
-            opacity-0
-            will-change-transform
-          "
-          style={{
-            textShadow:
-              "0 0 6px rgba(216, 180, 254, 0.75)",
-          }}
-        >
-          <span
-            key={symbolIndex}
-            className="animate-cursor-symbol-enter"
-          >
-            {symbols[symbolIndex]}
-          </span>
-        </div>
+        <style>
+          {`
+            html,
+            body,
+            body * {
+              cursor: ${nativeMusicCursor} !important;
+            }
+          `}
+        </style>
       )}
 
       {flyingSymbols.map((item) => (
