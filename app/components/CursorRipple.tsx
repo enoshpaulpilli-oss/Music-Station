@@ -13,17 +13,21 @@ const symbols = ["𝄞", "♪", "♫", "♩", "♬", "𝄢"];
 const cursorSvg = `
 <svg
   xmlns="http://www.w3.org/2000/svg"
-  width="30"
-  height="30"
-  viewBox="0 0 30 30"
+  width="34"
+  height="38"
+  viewBox="0 0 34 38"
 >
-  <path
-    d="M18 3v15.4a5.2 5.2 0 1 1-2-4.1V6.8L25 5v10.4a5.2 5.2 0 1 1-2-4.1V3.9L18 5V3z"
+  <text
+    x="1"
+    y="31"
+    font-family="Georgia, Times New Roman, serif"
+    font-size="31"
+    font-weight="400"
     fill="#e9d5ff"
     stroke="#7e22ce"
-    stroke-width="1"
-    stroke-linejoin="round"
-  />
+    stroke-width="0.45"
+    paint-order="stroke"
+  >𝄞</text>
 </svg>
 `;
 
